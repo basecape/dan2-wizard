@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dan2 — iGaming Site Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08080f;--surf:#111118;--s2:#18181f;--pri:#f0f0ff;--acc:#7c6fff;--a2:#a594ff;--mut:#55557a;--bd:rgba(124,111,255,.15);--ok:#22c55e;--er:#ef4444}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--pri);min-height:100vh;line-height:1.6}
+a{color:inherit;text-decoration:none}
+/* HEADER */
+header{background:var(--surf);border-bottom:1px solid var(--bd);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hlogo{display:flex;align-items:center;gap:9px}
+.hicon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--acc),#6b5fee);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px}
+.hname{font-size:15px;font-weight:800;background:linear-gradient(90deg,var(--acc),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hsteps{display:flex;gap:4px;align-items:center}
+.hs{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:600;color:var(--mut);transition:all .2s}
+.hs.done{color:var(--ok)}.hs.active{background:rgba(124,111,255,.15);color:var(--a2)}.hs.done::before{content:'✓ '}
+/* MAIN */
+.main{max-width:820px;margin:0 auto;padding:40px 24px 80px}
+.panel{display:none}.panel.active{display:block}
+/* TYPOGRAPHY */
+.ttl{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.ttl span{background:linear-gradient(90deg,var(--acc),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:14px;color:var(--mut);margin-bottom:28px;line-height:1.65}
+/* FORMS */
+label{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+input,select,textarea{width:100%;padding:10px 13px;font-size:13.5px;border:1px solid var(--bd);border-radius:9px;background:var(--s2);color:var(--pri);font-family:inherit;transition:border .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(124,111,255,.5)}
+textarea{min-height:72px;resize:vertical;line-height:1.6}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+/* BUTTONS */
+button{cursor:pointer;border:1px solid var(--bd);border-radius:9px;padding:10px 20px;font-size:13.5px;font-weight:600;font-family:inherit;transition:all .2s}
+.btn-p{background:linear-gradient(135deg,var(--acc),#6b5fee);color:#fff;border:none;box-shadow:0 3px 16px rgba(124,111,255,.3)}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 24px rgba(124,111,255,.4)}
+.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-g{background:transparent;color:var(--mut)}
+.btn-g:hover{color:var(--pri);border-color:rgba(124,111,255,.3)}
+.btn-ok{background:rgba(34,197,94,.12);color:var(--ok);border-color:rgba(34,197,94,.25)}
+.btn-ok:hover{background:rgba(34,197,94,.2)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px}
+/* STATUS */
+.srow{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:6px;min-height:18px;color:var(--mut)}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--bd);flex-shrink:0}
+.sdot.ok{background:var(--ok)}.sdot.er{background:var(--er)}
+/* FEED */
+.feed{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;min-height:80px;max-height:320px;overflow-y:auto;font-family:monospace;font-size:12px;margin:16px 0;line-height:1.8}
+.fl{display:flex;gap:10px;color:var(--mut)}.fl.ok{color:var(--pri)}.fl.act{color:var(--acc)}.fl.er{color:var(--er)}.fl.dim{color:var(--mut);opacity:.6}
+/* PROGRESS */
+.pbar-wrap{background:var(--s2);border-radius:20px;height:6px;margin:16px 0;overflow:hidden}
+.pbar{background:linear-gradient(90deg,var(--acc),var(--a2));height:100%;border-radius:20px;transition:width .4s}
+.pinfo{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-top:4px}
+/* CONCEPT CARDS */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.cc{border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s}
+.cc:hover{border-color:rgba(124,111,255,.35)}.cc.sel{border:2px solid var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.1)}
+.cprev{height:180px;overflow:hidden;background:var(--surf)}
+.cin{width:700px;transform:scale(.457);transform-origin:top left;pointer-events:none;line-height:1.4}
+.cbody{padding:13px 15px 15px;background:var(--surf)}
+.cname{font-size:14px;font-weight:700;margin-bottom:3px}
+.cdesc{font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:10px}
+.sws{display:flex;gap:4px;align-items:center}
+.sw{width:13px;height:13px;border-radius:2px;border:.5px solid rgba(255,255,255,.1)}
+.ctag{font-size:10px;color:var(--mut);margin-left:6px}
+/* SITEMAP TABLE */
+.stbl{width:100%;border-collapse:collapse;font-size:13px}
+.stbl th{background:rgba(124,111,255,.08);color:var(--mut);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:10px 12px;text-align:left;border-bottom:1px solid var(--bd)}
+.stbl td{padding:9px 12px;border-bottom:1px solid rgba(124,111,255,.07);vertical-align:middle}
+.stbl tr:last-child td{border-bottom:none}
+.stbl .pg{font-weight:600;color:var(--pri)}.stbl .url{font-family:monospace;font-size:11.5px;color:var(--acc)}.stbl .kw{color:var(--mut);font-size:12px}
+.cluster-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--acc);padding:10px 12px 6px;background:rgba(124,111,255,.04)}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
+.stbl-wrap{background:var(--surf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;max-height:440px;overflow-y:auto;margin:16px 0}
+.smeta{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.smet{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;font-size:12.5px}
+.smet b{color:var(--acc)}
+/* RESULTS */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.res-card{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.res-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:6px}
+.res-url{font-family:monospace;font-size:12.5px;color:var(--ok);word-break:break-all}
+.dl-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(34,197,94,.1);color:var(--ok);border:1px solid rgba(34,197,94,.2);margin-bottom:16px}
+/* DIVIDER */
+.div{border:none;border-top:1px solid var(--bd);margin:24px 0}
+/* SPIN */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">
+    <div class="hicon">D</div>
+    <span class="hname">Dan2</span>
+  </div>
+  <div class="hsteps" id="hsteps"></div>
+</header>
+
+<div class="main">
+
+  <!-- PANEL 0: SETUP (first time only) -->
+  <div id="p0" class="panel">
+    <div class="ttl">Welcome to <span>Dan2</span></div>
+    <div class="sub">Enter your credentials once. Dan2 saves them in your browser — you'll never need to enter them again.</div>
+    <div class="fg"><label>Anthropic API Key</label><input type="password" id="apikey" placeholder="sk-ant-..."></div>
+    <div class="fg"><label>GitHub Token (repo scope)</label><input type="password" id="ghkey" placeholder="ghp_..."><div style="font-size:12px;color:var(--mut);margin-top:4px">Owner: <code style="color:var(--a2)">basecape</code></div></div>
+    <div class="fg"><label>Vercel Token</label><input type="password" id="vckey" placeholder="vcp_..."></div>
+    <div class="row"><div></div><button class="btn-p" onclick="saveAndContinue()">Save & start building →</button></div>
+  </div>
+
+  <!-- PANEL 1: BRIEF -->
+  <div id="p1" class="panel active">
+    <div class="ttl">Your <span>Brief</span></div>
+    <div class="sub">Short is fine. Dan2 does the research.</div>
+    <div class="grid2">
+      <div class="fg"><label>Site Name</label><input type="text" id="bname" placeholder="e.g. SlotReviews"></div>
+      <div class="fg"><label>Domain (optional)</label><input type="text" id="bdomain" placeholder="e.g. slotreviews.co.uk"></div>
+      <div class="fg full"><label>Primary Keyword</label><input type="text" id="bkw" placeholder="e.g. best online slots UK"></div>
+      <div class="fg"><label>Target Market</label><input type="text" id="bmkt" placeholder="e.g. United Kingdom"></div>
+      <div class="fg"><label>Content Angle</label>
+        <select id="bang">
+          <option>Casino reviews and comparisons</option>
+          <option>Slot game reviews</option>
+          <option>Bonus and promotions hub</option>
+          <option>Casino guides and strategy</option>
+          <option>Mixed full-authority site</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Operators / Brands to Feature</label><input type="text" id="bops" placeholder="e.g. Bet365, Casumo, LeoVegas, Mr Green, William Hill"></div>
+      <div class="fg full"><label>Your Affiliate Link</label><input type="text" id="baff" placeholder="https://your-affiliate-link.com"></div>
+      <div class="fg full"><label>Notes (optional)</label><textarea id="bnotes" placeholder="Design references, compliance requirements, anything specific..."></textarea></div>
+    </div>
+    <div class="row"><button class="btn-g" onclick="go(0)">← Back</button><button class="btn-p" onclick="goDesign()">Generate designs →</button></div>
+  </div>
+
+  <!-- PANEL 2: DESIGN -->
+  <div id="p2" class="panel">
+    <div class="ttl">Choose Your <span>Design</span></div>
+    <div class="sub">5 unique editorial identities generated from your brief. Pick one to continue.</div>
+    <div id="dload" style="display:flex;align-items:center;gap:12px;padding:3rem 0;color:var(--mut)"><div class="spin"></div><span id="dmsg">Generating concepts...</span></div>
+    <div id="dres" style="display:none">
+      <div class="cgrid" id="cgrid"></div>
+      <div class="row"><button class="btn-g" onclick="go(1)">← Back</button><button class="btn-p" id="dsbtn" onclick="goSitemap()" disabled style="opacity:.4;cursor:not-allowed">Generate sitemap →</button></div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: SITEMAP -->
+  <div id="p3" class="panel">
+    <div class="ttl">Approve Your <span>Sitemap</span></div>
+    <div class="sub">Dan2 has planned your full site architecture. Check the pages you want to build now. You can always add more later.</div>
+    <div id="smload" style="display:flex;align-items:center;gap:12px;padding:2rem 0;color:var(--mut)"><div class="spin"></div><span>Planning site architecture...</span></div>
+    <div id="smres" style="display:none">
+      <div class="smeta" id="smeta"></div>
+      <div class="stbl-wrap" id="stblwrap"></div>
+      <div class="row"><button class="btn-g" onclick="go(2)">← Back</button><button class="btn-p" onclick="goBuild()">Build selected pages →</button></div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: BUILD -->
+  <div id="p4" class="panel">
+    <div class="ttl">Dan2 is <span>Building</span></div>
+    <div class="sub">Generating pages one by one. Each page is unique, SEO-optimised and interlinked.</div>
+    <div class="pbar-wrap"><div class="pbar" id="pbar" style="width:0%"></div></div>
+    <div class="pinfo"><span id="pct">0%</span><span id="pcnt">0 / 0 pages</span></div>
+    <div class="feed" id="bfeed"></div>
+    <div id="bdone" style="display:none">
+      <div class="badge">✓ Site complete</div>
+      <div class="row" style="margin-top:0"><button class="btn-p" onclick="go(5)">Download & deploy →</button></div>
+    </div>
+  </div>
+
+  <!-- PANEL 5: DEPLOY -->
+  <div id="p5" class="panel">
+    <div class="ttl">Your Site is <span>Ready</span></div>
+    <div class="sub">Download the ZIP, extract it, and run <code style="font-family:monospace;color:var(--a2)">node deploy.js</code> to go live.</div>
+    <div class="badge" id="site-badge">✓ 0 pages built</div>
+    <div class="res-grid" id="res-grid"></div>
+    <div class="dl-row">
+      <button class="btn-p" onclick="dlZip()" style="font-size:14px;padding:12px 24px">↓ Download Site ZIP</button>
+      <button class="btn-ok" onclick="dlDeploy()" style="font-size:14px;padding:12px 24px">↓ Download deploy.js</button>
+      <button class="btn-g" onclick="go(1)">New brief →</button>
+    </div>
+    <hr class="div">
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:20px;font-size:13px;line-height:1.9;color:var(--mut)">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;color:var(--mut)">To deploy your site</div>
+      <div>1. Extract the ZIP to a folder on your computer</div>
+      <div>2. Save <code style="color:var(--a2)">deploy.js</code> in the same folder</div>
+      <div>3. Open Terminal and run: <code style="color:var(--ok)">node deploy.js</code></div>
+      <div>4. Your site goes live on GitHub Pages + Vercel automatically</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+const OWNER = 'basecape';
+const STEPS = ['Brief','Design','Sitemap','Build','Deploy'];
+let ST = {
+  step: 1,
+  brief: {},
+  design: null,
+  sitemap: [],
+  pages: {},    // filename -> html string
+  script: ''
+};
+
+// ─────────────────────────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────────────────────────
+function go(n) {
+  document.getElementById('p'+ST.step).classList.remove('active');
+  ST.step = n;
+  document.getElementById('p'+n).classList.add('active');
+  renderSteps();
+loadCreds();
+  window.scrollTo(0,0);
+}
+
+function renderSteps() {
+  document.getElementById('hsteps').innerHTML = STEPS.map((s,i) => {
+    const idx = i + 1;
+    return `<div class="hs ${idx<ST.step?'done':idx===ST.step?'active':''}">${s}</div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────────────
+async function ask(prompt) {
+  const key = document.getElementById('apikey').value.trim();
+  if(!key) throw new Error('No API key — enter it in Setup');
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: String(prompt).substring(0, 2000) }]
+    })
+  });
+  const d = await r.json();
+  if(d.error) throw new Error(d.error.message);
+  return d.content.map(b => b.text||'').join('');
+}
+
+async function saveAndContinue() {
+  const api = document.getElementById('apikey').value.trim();
+  const gh  = document.getElementById('ghkey').value.trim();
+  const vc  = document.getElementById('vckey').value.trim();
+  if(!api || !gh) { alert('Anthropic API key and GitHub token are required.'); return; }
+  localStorage.setItem('d2_api', api);
+  localStorage.setItem('d2_gh', gh);
+  localStorage.setItem('d2_vc', vc);
+  go(1);
+}
+
+function loadCreds() {
+  const api = localStorage.getItem('d2_api');
+  const gh  = localStorage.getItem('d2_gh');
+  const vc  = localStorage.getItem('d2_vc');
+  if(api) document.getElementById('apikey').value = api;
+  if(gh)  document.getElementById('ghkey').value  = gh;
+  if(vc)  document.getElementById('vckey').value  = vc;
+  // Auto-skip setup if creds already saved
+  if(api && gh) { ST.step = 0; go(1); }
+}
+
+function getKey() { return localStorage.getItem('d2_api') || document.getElementById('apikey').value.trim(); }
+function getGH()  { return localStorage.getItem('d2_gh')  || document.getElementById('ghkey').value.trim(); }
+function getVC()  { return localStorage.getItem('d2_vc')  || document.getElementById('vckey').value.trim(); }
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ─────────────────────────────────────────────────────────────────
+// DESIGN ARCHETYPES
+// ─────────────────────────────────────────────────────────────────
+const ARCH = {
+  'dark-purple': {c:{bg:'#08080f',surf:'#111118',pri:'#f0f0ff',acc:'#7c6fff',a2:'#a594ff',mut:'#55557a',nav:'#0d0d1a',grad:'linear-gradient(135deg,#1a1230,#0d0d1a)'},lbl:'Dark Purple'},
+  'bright-modern':{c:{bg:'#f4f6fb',surf:'#ffffff',pri:'#0d1b2a',acc:'#ff5722',a2:'#ff8a50',mut:'#7a8899',nav:'#0d1b2a',grad:'linear-gradient(135deg,#1a2a4a,#0d1b2a)'},lbl:'Bright Modern'},
+  'scandinavian': {c:{bg:'#ffffff',surf:'#f7f9fc',pri:'#1a1a2e',acc:'#0077b6',a2:'#00b4d8',mut:'#8899aa',nav:'#ffffff',grad:'linear-gradient(135deg,#023e8a,#0077b6)'},lbl:'Scandinavian'},
+  'bold-neon':    {c:{bg:'#060810',surf:'#0d0f1c',pri:'#eef0ff',acc:'#39ff14',a2:'#7fff00',mut:'#3a5a3a',nav:'#080a14',grad:'linear-gradient(135deg,#0a1a08,#060810)'},lbl:'Bold Neon'},
+  'casino-mag':   {c:{bg:'#fafafa',surf:'#ffffff',pri:'#1c1c1c',acc:'#d4000f',a2:'#ff2a1a',mut:'#888888',nav:'#1c1c1c',grad:'linear-gradient(135deg,#1c0008,#3d0012)'},lbl:'Casino Magazine'}
+};
+
+function getC(concept) {
+  const a = ARCH[concept.archetype] || ARCH['dark-purple'];
+  return Object.assign({}, a.c, { acc: concept.accentColor || a.c.acc });
+}
+
+function buildPrev(concept) {
+  const c = getC(concept);
+  const dark = ['dark-purple','bold-neon'].includes(concept.archetype);
+  const serif = concept.archetype === 'casino-mag';
+  const ff = serif ? 'Georgia,serif' : '-apple-system,sans-serif';
+  const cas = [
+    {n:ST.brief.ops?ST.brief.ops.split(',')[0].trim():'Casino A',b:'100% Welcome Bonus',s:'9.8'},
+    {n:ST.brief.ops?ST.brief.ops.split(',')[1]?.trim()||'Casino B':'Casino B',b:'200 Free Spins',s:'9.5'},
+    {n:ST.brief.ops?ST.brief.ops.split(',')[2]?.trim()||'Casino C':'Casino C',b:'No Deposit Offer',s:'9.2'}
+  ];
+  const cardsBg = dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.03)';
+  const cardBorder = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
+  const textCol = dark || concept.archetype==='casino-mag' ? '#fff' : c.nav;
+  return `<div style="width:700px;background:${c.bg};font-family:${ff};overflow:hidden">
+<div style="background:${c.nav};padding:0 22px;height:54px;display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:28px;height:28px;border-radius:7px;background:${c.acc};display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px">${(concept.name||'S').charAt(0)}</div>
+    <span style="font-size:15px;font-weight:800;color:${c.acc}">${concept.name||ST.brief.name||'Site'}</span>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center">
+    ${['Reviews','Bonuses','Guides','Compare'].map(n=>`<span style="font-size:11px;color:${c.mut};font-weight:500">${n}</span>`).join('')}
+    <div style="background:${c.acc};color:#fff;font-size:10px;font-weight:700;padding:5px 13px;border-radius:20px">Top Picks</div>
+  </div>
+</div>
+<div style="background:${c.grad};padding:32px 22px 28px;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;border-radius:50%;background:${c.acc};opacity:.08"></div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:${c.acc}28;border:1px solid ${c.acc}45;border-radius:20px;padding:4px 11px;margin-bottom:11px">
+    <div style="width:5px;height:5px;border-radius:50%;background:${c.acc}"></div>
+    <span style="font-size:9.5px;font-weight:700;color:${c.acc};text-transform:uppercase;letter-spacing:.1em">${concept.mood||'Trusted Reviews'}</span>
+  </div>
+  <div style="font-size:27px;font-weight:900;color:#ffffff;line-height:1.12;max-width:400px;margin-bottom:10px;letter-spacing:-.02em">${concept.headline||'Best Online Casinos 2026'}</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.68);max-width:340px;line-height:1.55;margin-bottom:18px">${concept.tagline||'Independent expert reviews.'}</div>
+  <div style="display:flex;gap:9px">
+    <div style="background:${c.acc};color:#fff;font-size:12px;font-weight:700;padding:9px 20px;border-radius:8px;box-shadow:0 3px 14px ${c.acc}40">Top Casinos →</div>
+    <div style="border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:12px;padding:8px 16px;border-radius:8px">Compare All</div>
+  </div>
+</div>
+<div style="padding:16px 22px;background:${c.bg}">
+  <div style="font-size:10px;font-weight:700;color:${c.mut};text-transform:uppercase;letter-spacing:.08em;margin-bottom:11px">Top Rated This Month</div>
+  ${cas.map((ca,i)=>`
+  <div style="background:${c.surf};border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid ${cardBorder};display:flex;align-items:center;gap:12px;position:relative;overflow:hidden">
+    ${i===0?`<div style="position:absolute;top:0;right:0;background:${c.acc};color:#fff;font-size:9px;font-weight:800;padding:3px 10px;border-radius:0 10px 0 7px">TOP PICK</div>`:''}
+    <div style="width:36px;height:36px;border-radius:8px;background:${c.grad};display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:15px;flex-shrink:0">${ca.n.charAt(0)}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:700;color:${c.pri}">${ca.n}</div><div style="font-size:11px;color:${c.mut}">${ca.b}</div></div>
+    <div style="font-size:18px;font-weight:900;color:${c.acc};flex-shrink:0">${ca.s}</div>
+    <div style="background:${c.acc};color:#fff;font-size:10px;font-weight:700;padding:6px 11px;border-radius:7px;flex-shrink:0">Play</div>
+  </div>`).join('')}
+</div></div>`;
+}
+
+function renderConcepts(concepts) {
+  document.getElementById('cgrid').innerHTML = concepts.map((c,i) => {
+    const col = getC(c);
+    const lbl = (ARCH[c.archetype]||{lbl:c.archetype}).lbl;
+    return `<div class="cc" id="cc${i}" onclick="selC(${i})">
+      <div class="cprev"><div class="cin">${buildPrev(c)}</div></div>
+      <div class="cbody">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
+          <div class="cname">${c.name}</div>
+          <div style="font-size:10px;background:rgba(124,111,255,.1);color:var(--a2);padding:2px 8px;border-radius:10px">${lbl}</div>
+        </div>
+        <div class="cdesc">${c.description}</div>
+        <div class="sws">
+          ${[col.bg,col.surf,col.pri,col.acc,col.mut].map(cl=>`<div class="sw" style="background:${cl}"></div>`).join('')}
+          <span class="ctag">${c.mood}</span>
+        </div>
+        <button style="width:100%;font-size:12px;padding:7px;margin-top:4px">Select this design</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selC(i) {
+  document.querySelectorAll('.cc').forEach(c => c.classList.remove('sel'));
+  document.getElementById('cc'+i).classList.add('sel');
+  ST.design = ST.concepts[i];
+  const btn = document.getElementById('dsbtn');
+  btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP: DESIGN
+// ─────────────────────────────────────────────────────────────────
+async function goDesign() {
+  const name = document.getElementById('bname').value.trim();
+  if(!name) { alert('Enter a site name.'); return; }
+  ST.brief = {
+    name, domain: document.getElementById('bdomain').value||name.toLowerCase().replace(/\s+/g,'')+'.com',
+    kw: document.getElementById('bkw').value,
+    mkt: document.getElementById('bmkt').value,
+    ang: document.getElementById('bang').value,
+    ops: document.getElementById('bops').value,
+    aff: document.getElementById('baff').value || '#affiliate-link',
+    notes: document.getElementById('bnotes').value
+  };
+  go(2);
+  const mi = ['Generating concepts...','Building identities...','Creating 5 directions...'];
+  let i=0; const iv = setInterval(()=>{ document.getElementById('dmsg').textContent=mi[i++%mi.length]; },1400);
+  const fallback = () => Object.keys(ARCH).map((id,i) => ({
+    archetype:id, name:[name,'The Review Hub','Expert Picks','Neon Casino Guide','The Casino Post'][i]||name,
+    headline:["UK's Most Trusted Reviews",'Expert Casino Picks 2026','Find Your Best Casino','Bold. Honest. Top Rated.','The UK Casino Authority'][i],
+    tagline:['Independent. Verified. Rated.','Real experts. Real ratings.','Compare and play smarter.','Trusted by thousands of players.','In-depth analysis you can trust.'][i],
+    accentColor:ARCH[id].c.acc, mood:['Dark & Trusted','Bright & Bold','Clean & Clear','Neon & Electric','Editorial & Sharp'][i],
+    description:['Dark premium design with purple accents. Sophisticated and authoritative.','Bright modern cards with bold orange CTAs. High energy, high converting.','Clean Scandinavian data-led design. Trust signals front and center.','Dark background, neon green. Electric and attention-grabbing.','Magazine editorial with red/black. Content authority and depth.'][i]
+  }));
+  try {
+    const res = await ask(`Generate 5 iGaming affiliate design concepts for site "${name}" targeting ${ST.brief.mkt||'UK'} with ${ST.brief.ang}. Return ONLY a valid JSON array, no markdown.\nUse archetypes: dark-purple, bright-modern, scandinavian, bold-neon, casino-mag\n[{"archetype":"dark-purple","name":"brand name","headline":"max 7 words","tagline":"max 10 words","accentColor":"#hex","mood":"3 words","description":"1-2 sentences"}]`);
+    clearInterval(iv);
+    let concepts;
+    try { const s=res.indexOf('['),e=res.lastIndexOf(']'); concepts=JSON.parse(res.substring(s,e+1)); if(!concepts.length)throw 0; }
+    catch { concepts=fallback(); }
+    ST.concepts = concepts;
+    renderConcepts(concepts);
+    document.getElementById('dload').style.display='none';
+    document.getElementById('dres').style.display='block';
+  } catch(e) {
+    clearInterval(iv);
+    ST.concepts = fallback();
+    renderConcepts(ST.concepts);
+    document.getElementById('dload').style.display='none';
+    document.getElementById('dres').style.display='block';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP: SITEMAP
+// ─────────────────────────────────────────────────────────────────
+const DEFAULT_SITEMAP = [
+  {cluster:'Core', pages:[
+    {title:'Homepage',url:'index.html',kw:'',checked:true,core:true},
+    {title:'About Us',url:'about.html',kw:'',checked:true,core:true},
+  ]},
+  {cluster:'Casino Reviews', pages:[
+    {title:'Best Casino Sites',url:'casinos.html',kw:'best online casino',checked:true,core:true},
+  ]},
+  {cluster:'Game Reviews', pages:[
+    {title:'All Slot Reviews',url:'slots.html',kw:'online slots',checked:true,core:true},
+  ]},
+  {cluster:'Bonuses', pages:[
+    {title:'Best Bonuses',url:'bonuses.html',kw:'casino bonuses',checked:true,core:true},
+    {title:'Free Spins No Deposit',url:'free-spins-no-deposit.html',kw:'free spins no deposit',checked:true,core:false},
+    {title:'No Wagering Bonuses',url:'no-wagering-bonuses.html',kw:'no wagering bonus',checked:false,core:false},
+  ]},
+  {cluster:'Guides', pages:[
+    {title:'Slots Guide',url:'guides.html',kw:'how to play slots',checked:true,core:true},
+    {title:'What is RTP?',url:'what-is-rtp.html',kw:'what is rtp slots',checked:true,core:false},
+    {title:'Slot Volatility Guide',url:'slot-volatility.html',kw:'slot volatility explained',checked:false,core:false},
+    {title:'Responsible Gambling',url:'responsible-gambling.html',kw:'responsible gambling',checked:true,core:true},
+  ]},
+  {cluster:'Legal', pages:[
+    {title:'Privacy Policy',url:'privacy-policy.html',kw:'',checked:true,core:true},
+    {title:'Terms & Conditions',url:'terms.html',kw:'',checked:true,core:true},
+  ]}
+];
+
+async function goSitemap() {
+  if(!ST.design) { alert('Select a design first.'); return; }
+  go(3);
+  try {
+    const res = await ask(`Create a sitemap for an iGaming affiliate site: "${ST.brief.name}" | ${ST.brief.mkt} | keyword "${ST.brief.kw}" | operators: ${ST.brief.ops} | angle: ${ST.brief.ang}.\nReturn ONLY a JSON array of clusters:\n[{"cluster":"Cluster Name","pages":[{"title":"Page Title","url":"slug.html","kw":"target keyword"}]}]\nInclude: homepage, best casinos hub, individual casino reviews (one per operator), slots/games hub, top 5 game reviews, bonuses hub, 3 bonus pages, 5 guide pages, about, privacy, terms. Total 25-30 pages. JSON only.`);
+    let sm;
+    try { const s=res.indexOf('['),e=res.lastIndexOf(']'); sm=JSON.parse(res.substring(s,e+1)); }
+    catch { sm=null; }
+    if(sm && sm.length > 0) {
+      ST.sitemap = sm.map(cl => ({ cluster: cl.cluster, pages: cl.pages.map(p => ({...p, checked: true, core: false})) }));
+    } else { ST.sitemap = DEFAULT_SITEMAP; }
+  } catch(e) { ST.sitemap = DEFAULT_SITEMAP; }
+  // Always add core pages from brief (operator pages)
+  const ops = ST.brief.ops ? ST.brief.ops.split(',').map(o=>o.trim()).filter(Boolean) : [];
+  const reviewCluster = ST.sitemap.find(c => c.cluster.toLowerCase().includes('review') || c.cluster.toLowerCase().includes('casino'));
+  if(reviewCluster && ops.length) {
+    ops.forEach(op => {
+      const slug = op.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-review.html';
+      if(!reviewCluster.pages.find(p=>p.url===slug)) {
+        reviewCluster.pages.push({title:op+' Review',url:slug,kw:op.toLowerCase()+' casino review',checked:true,core:false});
+      }
+    });
+  }
+  renderSitemap();
+  document.getElementById('smload').style.display='none';
+  document.getElementById('smres').style.display='block';
+}
+
+function renderSitemap() {
+  const sm = ST.sitemap;
+  let total = sm.reduce((a,c)=>a+c.pages.length,0);
+  let checked = sm.reduce((a,c)=>a+c.pages.filter(p=>p.checked).length,0);
+  document.getElementById('smeta').innerHTML = `
+    <div class="smet"><b>${total}</b> total pages planned</div>
+    <div class="smet" id="smet-checked"><b>${checked}</b> selected to build</div>
+    <div class="smet" style="color:var(--ok)"><b>✓</b> All pages fully interlinked</div>`;
+  let html = `<table class="stbl"><thead><tr><th style="width:36px">Build</th><th>Page</th><th>URL</th><th>Target Keyword</th></tr></thead><tbody>`;
+  sm.forEach((cluster, ci) => {
+    html += `<tr><td colspan="4" class="cluster-hdr">${cluster.cluster}</td></tr>`;
+    cluster.pages.forEach((page, pi) => {
+      html += `<tr>
+        <td><input type="checkbox" ${page.checked?'checked':''} onchange="togglePage(${ci},${pi},this.checked)"></td>
+        <td class="pg">${page.title}</td>
+        <td class="url">/${page.url}</td>
+        <td class="kw">${page.kw||'—'}</td>
+      </tr>`;
+    });
+  });
+  html += '</tbody></table>';
+  document.getElementById('stblwrap').innerHTML = html;
+}
+
+function togglePage(ci, pi, val) {
+  ST.sitemap[ci].pages[pi].checked = val;
+  const checked = ST.sitemap.reduce((a,c)=>a+c.pages.filter(p=>p.checked).length,0);
+  document.getElementById('smet-checked').innerHTML = `<b>${checked}</b> selected to build`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP: BUILD
+// ─────────────────────────────────────────────────────────────────
+function fl(icon, text, cls) {
+  const f = document.getElementById('bfeed');
+  const d = document.createElement('div');
+  const id = 'fl'+Math.random().toString(36).slice(2,7);
+  d.className='fl '+(cls||''); d.id=id;
+  d.innerHTML=`<span style="width:16px;flex-shrink:0">${icon}</span><span>${text}</span>`;
+  f.appendChild(d); f.scrollTop=f.scrollHeight; return id;
+}
+function ul(id, icon, text, cls) {
+  const el=document.getElementById(id);
+  if(el){el.className='fl '+(cls||'ok');el.innerHTML=`<span style="width:16px;flex-shrink:0">${icon}</span><span>${text}</span>`;}
+}
+
+async function goBuild() {
+  go(4);
+  ST.pages = {};
+  document.getElementById('bfeed').innerHTML = '';
+  const b = ST.brief;
+  const d = ST.design;
+  const c = getC(d);
+  const aff = b.aff || '#affiliate-link';
+  const ops = b.ops ? b.ops.split(',').map(o=>o.trim()).filter(Boolean) : ['Casino A','Casino B','Casino C'];
+
+  // Build selected pages list
+  const toBuild = [];
+  ST.sitemap.forEach(cluster => {
+    cluster.pages.forEach(page => {
+      if(page.checked) toBuild.push(page);
+    });
+  });
+
+  const total = toBuild.length;
+  let done = 0;
+
+  // Build the shared nav HTML (used on every page)
+  const navLinks = ST.sitemap.slice(0,5).map(c => {
+    const first = c.pages.find(p=>p.checked);
+    return first ? `<a href="${first.url}" style="font-size:13px;color:${['casino-mag'].includes(d.archetype)?'rgba(255,255,255,.7)':'rgba(240,240,255,.65)'};font-weight:500;padding:6px 12px;border-radius:8px;transition:all .2s">${c.cluster}</a>` : '';
+  }).filter(Boolean).join('');
+
+  const NAV = `<nav style="background:${c.nav};position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(124,111,255,.15)">
+  <div style="max-width:1140px;margin:0 auto;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between">
+    <a href="index.html" style="display:flex;align-items:center;gap:9px;text-decoration:none">
+      <div style="width:30px;height:30px;border-radius:8px;background:${c.acc};display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:14px">${b.name.charAt(0)}</div>
+      <span style="font-size:16px;font-weight:800;color:${c.acc}">${b.name}</span>
+    </a>
+    <div style="display:flex;gap:4px;align-items:center">${navLinks}
+      <a href="index.html" style="background:${c.acc};color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:20px;text-decoration:none;margin-left:8px">Top Picks</a>
+    </div>
+  </div>
+</nav>`;
+
+  const FOOTER = `<footer style="background:${c.nav};border-top:1px solid rgba(124,111,255,.12);padding:40px 0 24px;margin-top:60px">
+  <div style="max-width:1140px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;justify-content:space-between;gap:24px;margin-bottom:28px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:${c.acc};margin-bottom:8px">${b.name}</div>
+        <p style="font-size:12px;color:rgba(240,240,255,.35);max-width:220px;line-height:1.65">Independent reviews. We never accept payment for positive coverage.</p>
+      </div>
+      <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(240,240,255,.35);margin-bottom:12px">Quick Links</div>
+        ${toBuild.slice(0,6).map(p=>`<a href="${p.url}" style="display:block;font-size:13px;color:rgba(240,240,255,.4);margin-bottom:7px;text-decoration:none">${p.title}</a>`).join('')}
+      </div>
+      <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(240,240,255,.35);margin-bottom:12px">Legal</div>
+        <a href="privacy-policy.html" style="display:block;font-size:13px;color:rgba(240,240,255,.4);margin-bottom:7px;text-decoration:none">Privacy Policy</a>
+        <a href="terms.html" style="display:block;font-size:13px;color:rgba(240,240,255,.4);margin-bottom:7px;text-decoration:none">Terms & Conditions</a>
+        <a href="responsible-gambling.html" style="display:block;font-size:13px;color:rgba(240,240,255,.4);margin-bottom:7px;text-decoration:none">Responsible Gambling</a>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(124,111,255,.1);padding-top:18px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+      <div style="background:rgba(255,87,34,.1);border:1px solid rgba(255,87,34,.2);color:#ff5722;font-size:12px;font-weight:800;padding:5px 14px;border-radius:20px;flex-shrink:0">18+</div>
+      <p style="font-size:11px;color:rgba(240,240,255,.25);line-height:1.65;max-width:740px">${b.name} is an independent affiliate website. We may earn commission when you sign up through our links. Gambling can be addictive — please play responsibly. For help visit <strong style="color:rgba(240,240,255,.4)">BeGambleAware.org</strong> or call <strong style="color:rgba(240,240,255,.4)">0808 8020 133</strong>.</p>
+    </div>
+  </div>
+</footer>`;
+
+  function wrapPage(title, content, kw) {
+    const desc = kw ? `Expert guide to ${kw} — ${b.name}` : `${title} — ${b.name}`;
+    return `<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} | ${b.name}</title>
+<meta name="description" content="${desc}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://${b.domain}/${title==='Homepage'?'':title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')+'.html'}">
+<meta property="og:title" content="${title} | ${b.name}">
+<meta property="og:description" content="${desc}">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:${c.bg};color:${c.pri};line-height:1.65}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+.section{padding:44px 0}
+h1{font-size:38px;font-weight:900;letter-spacing:-.02em;margin-bottom:12px}
+h2{font-size:22px;font-weight:800;margin-bottom:14px;margin-top:28px}
+h3{font-size:17px;font-weight:700;margin-bottom:10px;margin-top:20px}
+p{font-size:14.5px;color:rgba(${c.bg==='#fafafa'||c.bg==="#ffffff"||c.bg==='#f4f6fb'||c.bg==='#ffffff'?'28,28,28':'240,240,255'},.72);line-height:1.8;margin-bottom:14px}
+.hero{background:${c.grad};padding:56px 0 48px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:${c.acc};opacity:.07;pointer-events:none}
+.btn-p{display:inline-block;background:${c.acc};color:#fff;font-size:14px;font-weight:700;padding:12px 26px;border-radius:9px;box-shadow:0 3px 16px ${c.acc}40;margin-right:10px;margin-top:6px}
+.btn-o{display:inline-block;border:2px solid rgba(255,255,255,.3);color:rgba(255,255,255,.9);font-size:14px;padding:11px 22px;border-radius:9px}
+.card{background:${c.surf};border:1px solid rgba(124,111,255,.12);border-radius:14px;padding:20px 22px;margin-bottom:12px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;transition:all .2s}
+.card:hover{border-color:rgba(124,111,255,.3)}
+.ribbon{position:absolute;top:0;right:0;background:${c.acc};color:#fff;font-size:9px;font-weight:800;padding:4px 12px;border-radius:0 14px 0 8px;letter-spacing:.06em}
+.clogo{width:48px;height:48px;border-radius:11px;background:${c.grad};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:15px;font-weight:800;color:${c.pri};margin-bottom:3px}
+.cstars{color:${c.acc};font-size:12px;margin-bottom:3px}
+.cbonus{font-size:13px;color:${c.mut}}
+.cscore{font-size:24px;font-weight:900;color:${c.acc};text-align:center;flex-shrink:0;line-height:1}
+.playbtn{background:${c.acc};color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:9px;white-space:nowrap;flex-shrink:0;box-shadow:0 3px 12px ${c.acc}35}
+.tbl{width:100%;border-collapse:collapse;background:${c.surf};border-radius:12px;overflow:hidden;border:1px solid rgba(124,111,255,.1)}
+.tbl th{background:rgba(124,111,255,.08);color:${c.mut};font-size:11px;font-weight:700;text-transform:uppercase;padding:12px 14px;text-align:left;letter-spacing:.07em}
+.tbl td{padding:13px 14px;font-size:13px;border-bottom:1px solid rgba(124,111,255,.07);color:${c.pri}}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td a{background:rgba(124,111,255,.12);color:${c.a2};font-size:11px;font-weight:700;padding:5px 13px;border-radius:7px}
+.ed{background:${c.surf};border-radius:14px;padding:32px;border:1px solid rgba(124,111,255,.1);margin:28px 0}
+.faq-item{background:${c.surf};border-radius:11px;margin-bottom:9px;border:1px solid rgba(124,111,255,.1);overflow:hidden}
+.faq-q{padding:15px 18px;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between}
+.faq-a{padding:0 18px 14px;font-size:13.5px;color:${c.mut};line-height:1.75;display:none}
+.faq-a.open{display:block}
+.tag{display:inline-block;font-size:10.5px;background:rgba(124,111,255,.1);color:${c.a2};padding:3px 9px;border-radius:20px;font-weight:500;border:1px solid rgba(124,111,255,.15);margin:2px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.gcard{background:${c.surf};border-radius:12px;padding:20px;border:1px solid rgba(124,111,255,.1)}
+.gcard h3{font-size:14px;font-weight:700;margin-bottom:7px;color:${c.pri}}
+.gcard p{font-size:12.5px;color:${c.mut};line-height:1.6;margin:0}
+.gcard a{display:block;font-size:12px;color:${c.acc};font-weight:600;margin-top:10px}
+@media(max-width:720px){h1{font-size:26px}.grid3{grid-template-columns:1fr}.card{flex-wrap:wrap}.nav-links a:not(:last-child){display:none}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"${title}","url":"https://${b.domain}/","publisher":{"@type":"Organization","name":"${b.name}","url":"https://${b.domain}"}}<\/script>
+</head>
+<body>
+${NAV}
+${content}
+${FOOTER}
+<script>
+function tFaq(el){var a=el.nextElementSibling;var open=a.classList.contains('open');document.querySelectorAll('.faq-a.open').forEach(function(x){x.classList.remove('open');x.previousElementSibling.querySelector('span').textContent='+';});if(!open){a.classList.add('open');el.querySelector('span').textContent='−';}}
+<\/script>
+</body></html>`;
+  }
+
+  // ── HOMEPAGE (special full build) ────────────────────────────
+  const homePage = toBuild.find(p => p.url === 'index.html');
+  if(homePage) {
+    const lid = fl('⟳', 'Building homepage...','act');
+    try {
+      const cas = ops.slice(0,5);
+      const p1 = await ask(`Write the hero and casino listing HTML sections for an affiliate site.\nSite:"${b.name}" | Keyword:"${b.kw}" | Market:${b.mkt}\nOperators: ${cas.join(', ')}\nColors: bg ${c.bg}, text ${c.pri}, accent ${c.acc}, surface ${c.surf}\nInclude: (1) hero section with H1 "${b.kw}", subheading, two CTA buttons (bg:${c.acc}) (2) section "Top Rated Casinos" with one card per operator — each has logo square, name, star rating, bonus offer, TOP PICK ribbon on first, Play Now button href="${aff}"\nInline CSS only. No doctype/html/head/body tags. Raw HTML sections only.`);
+      const p2 = await ask(`Write comparison table and editorial HTML for an affiliate site about ${b.kw} in ${b.mkt}.\nColors: bg ${c.bg}, text ${c.pri}, accent ${c.acc}, surface ${c.surf}\nOperators: ${cas.join(', ')}\nInclude: (1) comparison table (Casino|Bonus|Wagering|Score|Play) with one row per operator, play buttons href="${aff}" (2) editorial section H2 "Why Trust Our ${b.name} Reviews" with 2 paragraphs (3) FAQ section H2 with 5 questions about ${b.kw} in ${b.mkt}, accordion style with onclick="tFaq(this)"\nInline CSS only. Raw HTML sections only.`);
+      const heroHTML = `<section style="background:${c.grad};padding:60px 0 52px;position:relative;overflow:hidden"><div style="position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:${c.acc};opacity:.07;pointer-events:none"></div><div class="wrap" style="position:relative">${p1.replace(/```html|```/g,'').trim()}</div></section><div class="wrap section">${p2.replace(/```html|```/g,'').trim()}</div>`;
+      ST.pages['index.html'] = wrapPage('Homepage', heroHTML, b.kw);
+      ul(lid,'✓','Homepage built');
+      done++; updateProgress(done, total);
+    } catch(e) { ul(lid,'✗','Homepage: '+e.message,'er'); }
+  }
+
+  // ── OTHER PAGES ───────────────────────────────────────────────
+  for(const page of toBuild) {
+    if(page.url === 'index.html') continue;
+    if(ST.pages[page.url]) continue;
+    const lid = fl('⟳', `Building: ${page.title}...`,'act');
+    try {
+      let content = await ask(`Write a complete HTML content section (no doctype/html/head/body tags) for:\nPage: "${page.title}"\nSite: "${b.name}" | Market: ${b.mkt} | Keyword: "${page.kw||page.title}"\nColors: bg ${c.bg}, text ${c.pri}, accent ${c.acc}, surface ${c.surf}\nOperators/brands: ${b.ops}\nAffiliate link: ${aff}\nInclude: hero section with H1, 2-3 content sections with H2s and real unique content about ${page.kw||page.title}, relevant CTAs href="${aff}", FAQ section if appropriate.\n300-400 words. Inline CSS only. Raw HTML only.`);
+      content = content.replace(/```html|```/g,'').trim();
+      const wrapped = wrapPage(page.title, `<div class="wrap section">${content}</div>`, page.kw);
+      ST.pages[page.url] = wrapped;
+      ul(lid,'✓',`✓ ${page.title}`);
+      done++; updateProgress(done, total);
+      await wait(300);
+    } catch(e) {
+      ul(lid,'⚠',`${page.title} — ${e.message}`,'er');
+      // Create stub page
+      ST.pages[page.url] = wrapPage(page.title, `<div class="wrap section"><section class="hero" style="background:${c.grad};padding:56px 0"><div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:${c.acc};opacity:.07"></div><div style="position:relative"><h1 style="color:#fff;font-size:34px;font-weight:900;margin-bottom:12px">${page.title}</h1><p style="color:rgba(255,255,255,.65);font-size:16px;max-width:500px">${page.kw ? `Expert guide to ${page.kw} — trusted reviews and recommendations.` : `Your trusted guide from ${b.name}.`}</p><a href="${aff}" class="btn-p" style="margin-top:18px">View Top Casinos →</a></div></section><div style="padding:44px 0;max-width:700px"><p>Our team is finalising the comprehensive guide to ${page.title.toLowerCase()}. In the meantime, explore our <a href="index.html" style="color:${c.acc};font-weight:600">top-rated casino recommendations</a> and <a href="bonuses.html" style="color:${c.acc};font-weight:600">exclusive bonus offers</a>.</p></div></div>`, page.kw);
+      done++; updateProgress(done, total);
+    }
+  }
+
+  // ── BUILD SITEMAP.XML ─────────────────────────────────────────
+  const sitemapXML = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${Object.keys(ST.pages).map(url=>`  <url>\n    <loc>https://${b.domain}/${url==='index.html'?'':url}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${url==='index.html'?'1.0':'0.8'}</priority>\n  </url>`).join('\n')}\n</urlset>`;
+  ST.pages['sitemap.xml'] = sitemapXML;
+
+  fl('✓', `Build complete — ${done} pages generated`,'ok');
+  document.getElementById('bdone').style.display='block';
+  ST.script = buildDeployScript();
+}
+
+function updateProgress(done, total) {
+  const pct = Math.round((done/total)*100);
+  document.getElementById('pbar').style.width = pct+'%';
+  document.getElementById('pct').textContent = pct+'%';
+  document.getElementById('pcnt').textContent = `${done} / ${total} pages`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP: DEPLOY
+// ─────────────────────────────────────────────────────────────────
+function go5() {
+  go(5);
+  const count = Object.keys(ST.pages).length;
+  document.getElementById('site-badge').textContent = `✓ ${count} pages built`;
+  const d = ST.design; const c = getC(d);
+  document.getElementById('res-grid').innerHTML = `
+    <div class="res-card"><div class="res-lbl">Pages generated</div><div class="res-url">${count} HTML files + sitemap.xml</div></div>
+    <div class="res-card"><div class="res-lbl">Design</div><div class="res-url">${d.name} — ${d.mood}</div></div>
+    <div class="res-card"><div class="res-lbl">GitHub repo (after deploy)</div><div class="res-url">github.com/${OWNER}/${ST.brief.name.toLowerCase().replace(/\s+/g,'-')}</div></div>
+    <div class="res-card"><div class="res-lbl">Live URL (after deploy)</div><div class="res-url">https://${ST.brief.domain}</div></div>`;
+}
+
+async function dlZip() {
+  if(!window.JSZip) { alert('JSZip not loaded'); return; }
+  const zip = new JSZip();
+  Object.entries(ST.pages).forEach(([name, content]) => { zip.file(name, content); });
+  const blob = await zip.generateAsync({type:'blob'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (ST.brief.name||'site').toLowerCase().replace(/\s+/g,'-')+'-site.zip';
+  a.click();
+}
+
+function dlDeploy() {
+  const b = new Blob([ST.script], {type:'text/javascript'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='deploy.js'; a.click();
+}
+
+function buildDeployScript() {
+  const gh = getGH();
+  const vc = getVC();
+  const name = ST.brief.name||'site';
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36).slice(-4);
+  const files = JSON.stringify(Object.entries(ST.pages).map(([f,c])=>({file:f,content:c})));
+  return `#!/usr/bin/env node
+// Dan2 Deploy — ${name}
+// Run: node deploy.js
+const https=require('https');
+const FILES=${files};
+const C={gh:'${gh}',vc:'${vc}',owner:'${OWNER}',repo:'${slug}',name:'${name.replace(/'/g,"\\'")}'}; 
+function req(m,h,p,t,d,xh){return new Promise((res,rej)=>{const isGH=h.includes('github');const b=Buffer.from(typeof d==='string'?d:JSON.stringify(d));const hd={'Authorization':isGH?'token '+t:'Bearer '+t,'User-Agent':'Dan2/1','Content-Length':String(b.length),...(xh||{})};if(!xh?.['Content-Type'])hd['Content-Type']='application/json';if(isGH)hd['Accept']='application/vnd.github.v3+json';const r=https.request({method:m,hostname:h,path:p,headers:hd},rs=>{let d='';rs.on('data',c=>d+=c);rs.on('end',()=>{try{res(JSON.parse(d))}catch{res(d)}})});r.on('error',rej);b.length&&r.write(b);r.end();});}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function run(){
+  console.log('\\nDan2 deploying: '+C.name+'\\n'+'─'.repeat(50));
+  process.stdout.write('Creating repo... ');
+  const rp=await req('POST','api.github.com','/user/repos',C.gh,{name:C.repo,description:C.name+' — Dan2',private:false,auto_init:true});
+  console.log(rp.full_name?'✓  '+rp.html_url:rp.message||'exists');
+  await sleep(3500);
+  for(const f of FILES){
+    process.stdout.write('Pushing '+f.file+'... ');
+    const enc=Buffer.from(f.content).toString('base64');
+    const r=await req('PUT','api.github.com','/repos/'+C.owner+'/'+C.repo+'/contents/'+f.file,C.gh,{message:'Dan2 build',content:enc});
+    console.log(r.content?'✓':'✗ '+r.message);
+    await sleep(200);
+  }
+  process.stdout.write('Enabling GitHub Pages... ');
+  await sleep(1500);
+  await req('POST','api.github.com','/repos/'+C.owner+'/'+C.repo+'/pages',C.gh,{source:{branch:'main',path:'/'}});
+  console.log('✓');
+  console.log('\\n✅  Done!');
+  console.log('GitHub:       https://github.com/'+C.owner+'/'+C.repo);
+  console.log('Live (60s):   https://'+C.owner+'.github.io/'+C.repo+'\\n');
+}
+run().catch(e=>{console.error('\\n✗ '+e.message);process.exit(1);});`;
+}
+
+// Wire build→deploy transition
+document.getElementById('bdone').querySelector('button').addEventListener('click', go5);
+
+// ─────────────────────────────────────────────────────────────────
+renderSteps();
+</script>
+</body>
+</html>
